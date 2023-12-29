@@ -44,11 +44,14 @@ typedef struct{
     int qtd_poligonos;
     ListaPoligonos *poligonos_criados;
 
+    int modo_execucao;
 } EstadoExecucao;
 
-EstadoExecucao *criar_execucao();
-Ponto *criar_ponto(EstadoExecucao *estado_atual, double coord_x, double coord_y, double rgb_vector[3]);
-Reta *criar_reta(EstadoExecucao *estado_atual, Ponto ponto1, Ponto ponto2, double rgb_vector[3]);
-Poligono *criar_poligono(EstadoExecucao *estado_atual, ListaPontos *pontos, int qtd_pon_pol, double rgb_vector[3]);
+//EstadoExecucao *criar_execucao();
+EstadoExecucao *criar_execucao(EstadoExecucao *novo_estado);
+//Ponto *criar_ponto(EstadoExecucao *estado_atual, double coord_x, double coord_y, double rgb_vector[3]);
+int criar_ponto(EstadoExecucao *estado_atual, double coord_x, double coord_y, double rgb_vector[3]);
+int criar_reta(EstadoExecucao *estado_atual, Ponto ponto1, Ponto ponto2, double rgb_vector[3]);
+int criar_poligono(EstadoExecucao *estado_atual, ListaPontos *pontos, int qtd_pon_pol, double rgb_vector[3]);
 
 #endif // ESTRUTURAS_HPP_INCLUDED

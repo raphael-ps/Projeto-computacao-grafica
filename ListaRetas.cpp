@@ -5,7 +5,7 @@
 #include "estruturas.hpp"
 
 struct elemento_reta{
-    Reta *reta;
+    Reta reta;
     struct elemento_reta *proximo;
 };
 
@@ -31,7 +31,7 @@ void destruirListaRetas(ListaRetas *ldse){
     }
 }
 
-int ListaRetasInserirFim(ListaRetas *ldse, Reta *reta){
+int ListaRetasInserirFim(ListaRetas *ldse, Reta reta){
     if(ldse == NULL){
         return 0;
     }else{
@@ -82,7 +82,7 @@ int ListaRetasRemoverFim(ListaRetas *ldse){
 int ListaRetasRemoverValor(ListaRetas *ldse, int id){
     if(ListaRetasVazia(ldse)){
         return 0;
-    }else if((*ldse)->reta->id == id){
+    }else if((*ldse)->reta.id == id){
         ElementoReta *aux = *ldse;
         *ldse = aux->proximo;
         free(aux);
@@ -90,7 +90,7 @@ int ListaRetasRemoverValor(ListaRetas *ldse, int id){
     }else{
         ElementoReta *ant = *ldse;
         ElementoReta *aux = ant->proximo;
-        while(aux != NULL && aux->reta->id != id){
+        while(aux != NULL && aux->reta.id != id){
             ant = aux;
             aux = aux->proximo;
         }
@@ -119,7 +119,7 @@ int ListaRetasAcessarIndice(ListaRetas *ldse, int pos, Reta *reta){
         if(aux == NULL){
             return 0;
         }else{
-            reta = aux->reta;
+            *reta = aux->reta;
             return 1;
         }
 
@@ -131,14 +131,14 @@ int ListaRetasAcessarValor(ListaRetas *ldse, int id, Reta *reta){
         return 0;
     }else{
         ElementoReta *aux = *ldse;
-        while(aux != NULL && aux->reta->id != id){
+        while(aux != NULL && aux->reta.id != id){
             aux = aux->proximo;
         }
         //chegou ao fim da lista e nao achou
         if(aux == NULL){
             return 0;
         }else{
-            reta = aux->reta;
+            *reta = aux->reta;
             return 1;
         }
     }
@@ -154,9 +154,9 @@ int desenhaRetas(ListaRetas *ldse){
         glLineWidth(5.0);
         glBegin(GL_LINES);
         while(aux != NULL){
-            glColor3dv(aux->reta->rgb_color);
-            glVertex2d(aux->reta->ponto1.x, aux->reta->ponto1.y);
-            glVertex2d(aux->reta->ponto2.x, aux->reta->ponto2.y);
+            glColor3dv(aux->reta.rgb_color);
+            glVertex2d(aux->reta.ponto1.x, aux->reta.ponto1.y);
+            glVertex2d(aux->reta.ponto2.x, aux->reta.ponto2.y);
             aux = aux->proximo;
         }
         glEnd();
@@ -171,5 +171,24 @@ int ListaRetasVazia(ListaRetas *ldse){
         return 1;
     }else{
         return 0;
+    }
+}
+
+void salvarListaRetas(FILE *fp, ListaRetas *lista){
+    ListaRetas primeiro = *lista;
+    while (primeiro != NULL) {
+        fwrite(&primeiro->reta, sizeof(Reta), 1, fp);
+        primeiro = primeiro->proximo;
+    }
+}
+
+void carregarListaRetas(FILE *fp, EstadoExecucao *estado){
+    estado->retas_criadas = criarListaRetas();
+    printf("qtd ret2 %d\n", estado->qtd_retas);
+
+    for (int i = 0; i < estado->qtd_retas; i++) {
+        Reta ret;
+        fread(&ret, sizeof(Ponto), 1, fp);
+        ListaRetasInserirFim(estado->retas_criadas, ret);
     }
 }

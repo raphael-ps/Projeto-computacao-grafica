@@ -43,12 +43,16 @@
 			<Add directory="C:/Program Files/CodeBlocks/MinGW/x86_64-w64-mingw32/lib" />
 		</Linker>
 		<Unit filename="ListaPoligonos.cpp" />
+		<Unit filename="ListaPoligonos.hpp" />
 		<Unit filename="ListaPontos.cpp" />
-		<Unit filename="ListaPontos.h" />
+		<Unit filename="ListaPontos.hpp" />
 		<Unit filename="ListaRetas.cpp" />
+		<Unit filename="ListaRetas.hpp" />
 		<Unit filename="estruturas.cpp" />
 		<Unit filename="estruturas.hpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="myUtils.cpp" />
+		<Unit filename="myUtils.hpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

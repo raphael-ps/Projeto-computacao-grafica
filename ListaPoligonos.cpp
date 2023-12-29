@@ -5,13 +5,8 @@
 #include "ListaPontos.hpp"
 #include "estruturas.hpp"
 
-struct elemento{
-    Ponto *ponto;
-    struct elemento *proximo;
-};
-
 struct elemento_poli{
-    Poligono *poligono;
+    Poligono poligono;
     struct elemento_poli *proximo;
 };
 
@@ -37,7 +32,7 @@ void destruirListaPoligonos(ListaPoligonos *ldse){
     }
 }
 
-int ListaPoligonosInserirFim(ListaPoligonos *ldse, Poligono *poligono){
+int ListaPoligonosInserirFim(ListaPoligonos *ldse, Poligono poligono){
     if(ldse == NULL){
         return 0;
     }else{
@@ -88,7 +83,7 @@ int ListaPoligonosRemoverFim(ListaPoligonos *ldse){
 int ListaPoligonosRemoverValor(ListaPoligonos *ldse, int id){
     if(ListaPoligonosVazia(ldse)){
         return 0;
-    }else if((*ldse)->poligono->id == id){
+    }else if((*ldse)->poligono.id == id){
         ElementoPoli *aux = *ldse;
         *ldse = aux->proximo;
         free(aux);
@@ -96,7 +91,7 @@ int ListaPoligonosRemoverValor(ListaPoligonos *ldse, int id){
     }else{
         ElementoPoli *ant = *ldse;
         ElementoPoli *aux = ant->proximo;
-        while(aux != NULL && aux->poligono->id != id){
+        while(aux != NULL && aux->poligono.id != id){
             ant = aux;
             aux = aux->proximo;
         }
@@ -125,7 +120,7 @@ int ListaPoligonosAcessarIndice(ListaPoligonos *ldse, int pos, Poligono *poligon
         if(aux == NULL){
             return 0;
         }else{
-            poligono = aux->poligono;
+            *poligono = aux->poligono;
             return 1;
         }
 
@@ -137,14 +132,14 @@ int ListaPoligonosAcessarValor(ListaPoligonos *ldse, int id, Poligono *poligono)
         return 0;
     }else{
         ElementoPoli *aux = *ldse;
-        while(aux != NULL && aux->poligono->id != id){
+        while(aux != NULL && aux->poligono.id != id){
             aux = aux->proximo;
         }
         //chegou ao fim da lista e nao achou
         if(aux == NULL){
             return 0;
         }else{
-            poligono = aux->poligono;
+            *poligono = aux->poligono;
             return 1;
         }
     }
@@ -158,14 +153,14 @@ int desenhaPoligonos(ListaPoligonos *ldse){
         ElementoPoli *aux = *ldse;
 
         while(aux != NULL){
-            ListaPontos *pol_pontos_lista = aux->poligono->pontos;
+            ListaPontos *pol_pontos_lista = aux->poligono.pontos;
             struct elemento *pol_pontos = *pol_pontos_lista;
 
-            glColor3dv(aux->poligono->rgb_color);
+            glColor3dv(aux->poligono.rgb_color);
             glLineWidth(1);
             glBegin(GL_POLYGON);
             while(pol_pontos != NULL){
-                glVertex2d(pol_pontos->ponto->x, pol_pontos->ponto->y);
+                glVertex2d(pol_pontos->ponto.x, pol_pontos->ponto.y);
                 pol_pontos = pol_pontos->proximo;
             }
 
@@ -184,5 +179,32 @@ int ListaPoligonosVazia(ListaPoligonos *ldse){
         return 1;
     }else{
         return 0;
+    }
+}
+
+void salvarListaPoligonos(FILE *fp, ListaPoligonos *lista){
+    ListaPoligonos primeiro = *lista;
+    while (primeiro != NULL) {
+        fwrite(&primeiro->poligono, sizeof(Poligono), 1, fp);
+        salvarListaPontos(fp, primeiro->poligono.pontos);
+        primeiro = primeiro->proximo;
+    }
+}
+
+void carregarListaPoligonos(FILE *fp, EstadoExecucao *estado){
+    estado->poligonos_criados = criarListaPoligonos();
+    printf("qtd pont2 %d\n", estado->qtd_poligonos);
+
+    for (int i = 0; i < estado->qtd_poligonos; i++) {
+        Poligono poli;
+        fread(&poli, sizeof(Poligono), 1, fp);
+
+        poli.pontos = criarListaPontos();
+        for (int i = 0; i < poli.qtd_pontos; i++) {
+            Ponto pon;
+            fread(&pon, sizeof(Ponto), 1, fp);
+            ListaPontosInserirFim(poli.pontos, pon);
+        }
+        ListaPoligonosInserirFim(estado->poligonos_criados, poli);
     }
 }

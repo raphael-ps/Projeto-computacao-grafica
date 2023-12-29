@@ -4,10 +4,6 @@
 #include "ListaPontos.hpp"
 #include "estruturas.hpp"
 
-struct elemento{
-    Ponto *ponto;
-    struct elemento *proximo;
-};
 
 typedef struct elemento Elemento;
 
@@ -31,7 +27,7 @@ void destruirListaPontos(ListaPontos *ldse){
     }
 }
 
-int ListaPontosInserirFim(ListaPontos *ldse, Ponto *ponto){
+int ListaPontosInserirFim(ListaPontos *ldse, Ponto ponto){
     if(ldse == NULL){
         return 0;
     }else{
@@ -82,7 +78,7 @@ int ListaPontosRemoverFim(ListaPontos *ldse){
 int ListaPontosRemoverValor(ListaPontos *ldse, int id){
     if(ListaPontosVazia(ldse)){
         return 0;
-    }else if((*ldse)->ponto->id == id){
+    }else if((*ldse)->ponto.id == id){
         Elemento *aux = *ldse;
         *ldse = aux->proximo;
         free(aux);
@@ -90,7 +86,7 @@ int ListaPontosRemoverValor(ListaPontos *ldse, int id){
     }else{
         Elemento *ant = *ldse;
         Elemento *aux = ant->proximo;
-        while(aux != NULL && aux->ponto->id != id){
+        while(aux != NULL && aux->ponto.id != id){
             ant = aux;
             aux = aux->proximo;
         }
@@ -119,7 +115,7 @@ int ListaPontosAcessarIndice(ListaPontos *ldse, int pos, Ponto *ponto){
         if(aux == NULL){
             return 0;
         }else{
-            ponto = aux->ponto;
+            *ponto = aux->ponto;
             return 1;
         }
 
@@ -131,14 +127,14 @@ int ListaPontosAcessarValor(ListaPontos *ldse, int id, Ponto *ponto){
         return 0;
     }else{
         Elemento *aux = *ldse;
-        while(aux != NULL && aux->ponto->id != id){
+        while(aux != NULL && aux->ponto.id != id){
             aux = aux->proximo;
         }
         //chegou ao fim da lista e nao achou
         if(aux == NULL){
             return 0;
         }else{
-            ponto = aux->ponto;
+            *ponto = aux->ponto;
             return 1;
         }
     }
@@ -162,12 +158,31 @@ int desenhaPontos(ListaPontos *ldse){
         glBegin(GL_POINTS);
         Elemento *aux2 = *ldse;
         while(aux2 != NULL){
-            glColor3dv(aux2->ponto->rgb_color); //define a cor vermelho
-            glVertex2d(aux2->ponto->x, aux2->ponto->y); //define localização do vértice
+            glColor3dv(aux2->ponto.rgb_color); //define a cor vermelho
+            glVertex2d(aux2->ponto.x, aux2->ponto.y); //define localização do vértice
             aux2 = aux2->proximo;
         }
         glEnd();
 
         return 1;
+    }
+}
+
+void salvarListaPontos(FILE *fp, ListaPontos *lista){
+    ListaPontos primeiro = *lista;
+    while (primeiro != NULL) {
+        fwrite(&primeiro->ponto, sizeof(Ponto), 1, fp);
+        primeiro = primeiro->proximo;
+    }
+}
+
+void carregarListaPontos(FILE *fp, EstadoExecucao *estado){
+    estado->pontos_criados = criarListaPontos();
+    printf("qtd pont2 %d\n", estado->qtd_pontos);
+
+    for (int i = 0; i < estado->qtd_pontos; i++) {
+        Ponto p;
+        fread(&p, sizeof(Ponto), 1, fp);
+        ListaPontosInserirFim(estado->pontos_criados, p);
     }
 }

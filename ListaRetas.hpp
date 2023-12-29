@@ -1,5 +1,6 @@
 #ifndef LISTARETAS_HPP_INCLUDED
 #define LISTARETAS_HPP_INCLUDED
+#include "estruturas.hpp"
 
 typedef struct elemento_reta* ListaRetas;
 typedef struct reta Reta;
@@ -7,12 +8,13 @@ typedef struct reta Reta;
 ListaRetas* criarListaRetas();
 void destruirListaRetas(ListaRetas *);
 int ListaRetasVazia(ListaRetas *);
-int ListaRetasInserirFim (ListaRetas *, Reta *);
+int ListaRetasInserirFim (ListaRetas *, Reta );
 int ListaRetasRemoverFim (ListaRetas *);
 int ListaRetasRemoverValor (ListaRetas *, int);
 int ListaRetasAcessarIndice (ListaRetas *, int , Reta *);
 int ListaRetasAcessarValor (ListaRetas *, int , Reta *);
 int desenhaRetas(ListaRetas *);
-
+void salvarListaRetas(FILE *fp, ListaRetas *lista);
+void carregarListaRetas(FILE *fp, EstadoExecucao *estado);
 
 #endif // LISTARETAS_HPP_INCLUDED
