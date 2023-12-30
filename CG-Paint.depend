@@ -939,15 +939,16 @@
 
 1703610241 c:\users\softex\documents\cg-paint\listapoligonos.hpp
 
-1703826288 source:c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.cpp
+1703890791 source:c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.cpp
 	<stdio.h>
 	<stdlib.h>
+	<GL/glut.h>
 	"estruturas.hpp"
 	"ListaRetas.hpp"
 	"ListaPontos.hpp"
 	"ListaPoligonos.hpp"
 
-1703826240 c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.hpp
+1703890769 c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.hpp
 
 1703826871 c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.hpp
 	"estruturas.hpp"
@@ -965,14 +966,14 @@
 	"ListaPontos.hpp"
 	"estruturas.hpp"
 
-1703826616 source:c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.cpp
+1703904691 source:c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.cpp
 	<stdlib.h>
 	<stdio.h>
 	<GL/glut.h>
 	"ListaRetas.hpp"
 	"estruturas.hpp"
 
-1703826776 source:c:\users\softex\documents\github\projeto-computacao-grafica\main.cpp
+1703907139 source:c:\users\softex\documents\github\projeto-computacao-grafica\main.cpp
 	<GLUT/glut.h>
 	<GL/glut.h>
 	<stdio.h>
@@ -991,11 +992,11 @@
 	"ListaPontos.hpp"
 	"estruturas.hpp"
 
-1703812228 source:c:\users\softex\documents\github\projeto-computacao-grafica\myutils.cpp
+1703871377 source:c:\users\softex\documents\github\projeto-computacao-grafica\myutils.cpp
 	<GL/glut.h>
 	<stdio.h>
 	<stdlib.h>
 	"myUtils.hpp"
 
-1703812228 c:\users\softex\documents\github\projeto-computacao-grafica\myutils.hpp
+1703871377 c:\users\softex\documents\github\projeto-computacao-grafica\myutils.hpp
 

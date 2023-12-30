@@ -188,7 +188,7 @@ void carregarListaRetas(FILE *fp, EstadoExecucao *estado){
 
     for (int i = 0; i < estado->qtd_retas; i++) {
         Reta ret;
-        fread(&ret, sizeof(Ponto), 1, fp);
+        fread(&ret, sizeof(Reta), 1, fp);
         ListaRetasInserirFim(estado->retas_criadas, ret);
     }
 }
