@@ -156,9 +156,10 @@ int desenhaPontos(ListaPontos *ldse){
     }else{
         glPointSize(5.0);
         glBegin(GL_POINTS);
+        double rgb4selected[] = {1, 0.647, 0};
         Elemento *aux2 = *ldse;
         while(aux2 != NULL){
-            glColor3dv(aux2->ponto.rgb_color); //define a cor vermelho
+            glColor3dv(aux2->ponto.selected ? rgb4selected : aux2->ponto.rgb_color);
             glVertex2d(aux2->ponto.x, aux2->ponto.y); //define localização do vértice
             aux2 = aux2->proximo;
         }
@@ -171,6 +172,7 @@ int desenhaPontos(ListaPontos *ldse){
 void salvarListaPontos(FILE *fp, ListaPontos *lista){
     ListaPontos primeiro = *lista;
     while (primeiro != NULL) {
+        primeiro->ponto.selected = 0;
         fwrite(&primeiro->ponto, sizeof(Ponto), 1, fp);
         primeiro = primeiro->proximo;
     }
@@ -185,4 +187,32 @@ void carregarListaPontos(FILE *fp, EstadoExecucao *estado){
         fread(&p, sizeof(Ponto), 1, fp);
         ListaPontosInserirFim(estado->pontos_criados, p);
     }
+}
+
+
+Ponto* pickPontoTest(Ponto *p, double mx, double my){
+
+    if (mx <= p->x+CLICK_TOLERANCE && mx >= p->x-CLICK_TOLERANCE){
+        if (my <= p->y+CLICK_TOLERANCE && my >= p->y-CLICK_TOLERANCE){
+            p->selected = 1;
+            return p;
+        }
+    }
+    return NULL;
+}
+
+Ponto *pickPontoIteration(ListaPontos *lista, int mouseX, int mouseY){
+    ListaPontos listNode = *lista;
+    Ponto *selected;
+
+    while (listNode != NULL){
+        selected = pickPontoTest(&listNode->ponto, mouseX, mouseY);
+
+        if (selected != NULL){
+            return selected;
+        }
+
+        listNode = listNode->proximo;
+    }
+    return NULL;
 }

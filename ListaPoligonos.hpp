@@ -16,5 +16,6 @@ int ListaPoligonosAcessarValor (ListaPoligonos *, int , Poligono *);
 int desenhaPoligonos(ListaPoligonos *ldse);
 void salvarListaPoligonos(FILE *fp, ListaPoligonos *lista);
 void carregarListaPoligonos(FILE *fp, EstadoExecucao *estado);
+Poligono *pickPolygonIteration(ListaPoligonos *lista, int mouseX, int mouseY);
 
 #endif // LISTAPOLIGONOS_HPP_INCLUDED

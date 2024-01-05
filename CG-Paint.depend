@@ -939,7 +939,7 @@
 
 1703610241 c:\users\softex\documents\cg-paint\listapoligonos.hpp
 
-1703890791 source:c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.cpp
+1704408934 source:c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.cpp
 	<stdio.h>
 	<stdlib.h>
 	<GL/glut.h>
@@ -948,32 +948,32 @@
 	"ListaPontos.hpp"
 	"ListaPoligonos.hpp"
 
-1703890769 c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.hpp
+1704406871 c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.hpp
 
-1703826871 c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.hpp
+1704405308 c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.hpp
 	"estruturas.hpp"
 
-1703825425 c:\users\softex\documents\github\projeto-computacao-grafica\listapontos.hpp
+1704405115 c:\users\softex\documents\github\projeto-computacao-grafica\listapontos.hpp
 	"estruturas.hpp"
 
-1703826871 c:\users\softex\documents\github\projeto-computacao-grafica\listapoligonos.hpp
+1704405115 c:\users\softex\documents\github\projeto-computacao-grafica\listapoligonos.hpp
 	"estruturas.hpp"
 
-1703825425 source:c:\users\softex\documents\github\projeto-computacao-grafica\listapontos.cpp
+1704411845 source:c:\users\softex\documents\github\projeto-computacao-grafica\listapontos.cpp
 	<stdlib.h>
 	<stdio.h>
 	<GL/glut.h>
 	"ListaPontos.hpp"
 	"estruturas.hpp"
 
-1703904691 source:c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.cpp
+1704411845 source:c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.cpp
 	<stdlib.h>
 	<stdio.h>
 	<GL/glut.h>
 	"ListaRetas.hpp"
 	"estruturas.hpp"
 
-1703907139 source:c:\users\softex\documents\github\projeto-computacao-grafica\main.cpp
+1704413128 source:c:\users\softex\documents\github\projeto-computacao-grafica\main.cpp
 	<GLUT/glut.h>
 	<GL/glut.h>
 	<stdio.h>
@@ -984,7 +984,7 @@
 	"ListaRetas.hpp"
 	"ListaPoligonos.hpp"
 
-1703826605 source:c:\users\softex\documents\github\projeto-computacao-grafica\listapoligonos.cpp
+1704411845 source:c:\users\softex\documents\github\projeto-computacao-grafica\listapoligonos.cpp
 	<stdlib.h>
 	<stdio.h>
 	<GL/glut.h>

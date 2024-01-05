@@ -22,6 +22,55 @@ const int windowSizeX = 800, windowSizeY = 600;
 const int ortoSizeX = windowSizeX, ortoSizeY = windowSizeY;
 double rgb[3] = {0, 0, 1};
 
+void handleKeyboardIn(unsigned char key, int x, int y) {
+    printf("%c %d ------0-0-\n", key, (int) key);
+
+    if ((int) key == 127){
+        printf(" 1 Here BRO\n");
+        if (estado_atual.lastButtonPressed != NULL &&
+            estado_atual.lastButtonPressed->id == cliqueSelecionarobjeto && estado_atual.currentPage == drawPage){
+            printf(" 2 Here BRO\n");
+            if(estado_atual.lastPointSelected != NULL){
+                if (ListaPontosRemoverValor(estado_atual.pontos_criados, estado_atual.lastPointSelected->id) ){
+                    estado_atual.lastPointSelected = NULL;
+                    estado_atual.qtd_pontos--;
+                };
+
+            } else if (estado_atual.lastLineSelected != NULL){
+                printf(" 3 Here BRO\n");
+                if (ListaRetasRemoverValor(estado_atual.retas_criadas, estado_atual.lastLineSelected->id) ){
+                    printf(" 4 Here BRO\n");
+                    estado_atual.lastLineSelected = NULL;
+                    estado_atual.qtd_retas--;
+                };
+            } else if (estado_atual.lastPolygonSelected != NULL){
+                if (ListaPoligonosRemoverValor(estado_atual.poligonos_criados, estado_atual.lastPolygonSelected->id) ){
+                    estado_atual.lastPolygonSelected = NULL;
+                    estado_atual.qtd_poligonos--;
+                };
+            }
+            glutPostRedisplay();
+        }
+    }
+}
+
+void handleObjectsSelection(int mouseX, int mouseY){
+
+    estado_atual.lastPointSelected = pickPontoIteration(estado_atual.pontos_criados, mouseX, mouseY);
+
+    //if(estado_atual.lastPointSelected){
+     //   lastPointSel = pointSelected;
+    //}
+    if (!estado_atual.lastPointSelected){
+
+        estado_atual.lastLineSelected = pickLineIteration(estado_atual.retas_criadas, mouseX, mouseY);
+
+        if (!estado_atual.lastLineSelected) {
+            estado_atual.lastPolygonSelected = pickPolygonIteration(estado_atual.poligonos_criados, mouseX, mouseY);
+        }
+    }
+}
+
 void handleCliqueCriarPontos(int x, int y){
     double prgb[3] = {1, 0, 0};
     criar_ponto(&estado_atual, x, y, prgb);
@@ -152,22 +201,34 @@ ProgramPage *getCurrentPage(){
 }
 
 void mouseClickHandler(int button, int state, int x, int y) {
-    printf("button pressed = %d\n", button);
+    printf("HERE\n");
     y = (ortoSizeY - y);
     ProgramPage *currentPage = getCurrentPage();
     int houve_botao_clicado = 0;
-    static Button *last_pressed = NULL;
+
     // Check if the left mouse button was clicked and released
+    if (estado_atual.lastLineSelected){
+        estado_atual.lastLineSelected->selected = 0;
+        estado_atual.lastLineSelected = NULL;
+    }
+    if (estado_atual.lastPointSelected){
+        estado_atual.lastPointSelected->selected = 0;
+        estado_atual.lastPointSelected = NULL;
+    }
+    if (estado_atual.lastPolygonSelected){
+        estado_atual.lastPolygonSelected->selected = 0;
+        estado_atual.lastPolygonSelected = NULL;
+    }
 
     if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
 
         for (int c = 0; c < currentPage->qtd_buttons; c++){
             if (isPointInsideButton(x, y, currentPage->pageButtons[c])){
-                if (last_pressed != NULL){
-                    last_pressed->pressed = 0;
+                if (estado_atual.lastButtonPressed != NULL){
+                    estado_atual.lastButtonPressed->pressed = 0;
                 }
-                last_pressed = &currentPage->pageButtons[c];
-                last_pressed->pressed = 1;
+                estado_atual.lastButtonPressed = &currentPage->pageButtons[c];
+                estado_atual.lastButtonPressed->pressed = 1;
                 printf("Botao -%s- clicado\n", currentPage->pageButtons[c].label.texto);
                 houve_botao_clicado = 1;
                 break;
@@ -175,7 +236,7 @@ void mouseClickHandler(int button, int state, int x, int y) {
         }
 
         if (!houve_botao_clicado && estado_atual.currentPage == drawPage){
-            switch(last_pressed->id){
+            switch(estado_atual.lastButtonPressed->id){
             case cliqueCriarPontos:
                 handleCliqueCriarPontos(x, y);
                 break;
@@ -186,12 +247,16 @@ void mouseClickHandler(int button, int state, int x, int y) {
                 handleCliqueCriarPoligonos(x, y, 0);
                 break;
             case cliqueSelecionarobjeto:
+                handleObjectsSelection(x, y);
                 break;
             }
             return;
         }
 
-        switch(last_pressed->id){
+        if (!houve_botao_clicado)
+            return;
+
+        switch(estado_atual.lastButtonPressed == NULL ? -1 : estado_atual.lastButtonPressed->id){
 
         case cliqueNovoArquivo:
             criarNovoArquivo(&estado_atual);
@@ -210,10 +275,9 @@ void mouseClickHandler(int button, int state, int x, int y) {
         default:
             break;
         }
-    } else if (button == GLUT_MIDDLE_BUTTON && state == GLUT_UP && currentPage->pageID == drawPage && last_pressed->id == cliqueCriarPoligonos){
+    } else if (button == GLUT_MIDDLE_BUTTON && state == GLUT_UP && currentPage->pageID == drawPage && estado_atual.lastButtonPressed->id == cliqueCriarPoligonos){
         handleCliqueCriarPoligonos(x, y, 1);
     }
-
 }
 /**
 void drawMenu() {
@@ -241,13 +305,8 @@ void display(){
     switch (estado_atual.currentPage){
     case homePage:
         showPage(&paginaHome);
-
         break;
     case drawPage:
-        desenhaPoligonos(estado_atual.poligonos_criados);
-        desenhaRetas(estado_atual.retas_criadas);
-        desenhaPontos(estado_atual.pontos_criados);
-
         showPage(&drawingPage);
         break;
     case notFoundPage:
@@ -260,6 +319,12 @@ void display(){
   glFlush(); //desenha os comandos não executados
 }
 
+void desenhasFormasGeometricas(){
+    desenhaPoligonos(estado_atual.poligonos_criados);
+    desenhaRetas(estado_atual.retas_criadas);
+    desenhaPontos(estado_atual.pontos_criados);
+}
+
 void init(){
     estado_atual.currentPage = homePage;
     glutSetCursor(GLUT_CURSOR_CROSSHAIR);
@@ -267,7 +332,7 @@ void init(){
     int msgLength = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*) "404 ERROR: PAGE NOT FOUND");
     criar_pagina(&errorPage, notFoundPage, NULL);
     criar_pagina(&paginaHome, homePage, NULL);
-    criar_pagina(&drawingPage, drawPage, NULL);
+    criar_pagina(&drawingPage, drawPage, &desenhasFormasGeometricas);
     add_text(&errorPage, "404 ERROR: PAGE NOT FOUND", GLUT_BITMAP_TIMES_ROMAN_24, (ortoSizeX - msgLength )/ 2, ortoSizeY/2);
 
     glClearColor(1, 1, 1, 1.0); //define a cor de fundo
@@ -333,6 +398,8 @@ int main(int argc, char** argv){
 
     glutMouseFunc(mouseClickHandler);
     glutPassiveMotionFunc(mouseEnterButton);
+    glutKeyboardUpFunc(handleKeyboardIn);
+
     //atexit(exitCallback);
 
     init();

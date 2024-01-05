@@ -21,4 +21,6 @@ int ListaPontosAcessarValor (ListaPontos *, int , Ponto *);
 int desenhaPontos(ListaPontos *ldse);
 void salvarListaPontos(FILE *fp, ListaPontos *lista);
 void carregarListaPontos(FILE *fp, EstadoExecucao *estado);
+Ponto *pickPontoIteration(ListaPontos *lista, int mouseX, int mouseY);
+
 #endif // LISTAPONTOS_HPP_INCLUDED

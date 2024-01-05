@@ -151,13 +151,16 @@ int desenhaPoligonos(ListaPoligonos *ldse){
         return 0;
     }else{
         ElementoPoli *aux = *ldse;
+        double rgb4selected[] = {1, 0.647, 0};
+        glLineWidth(5.0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         while(aux != NULL){
             ListaPontos *pol_pontos_lista = aux->poligono.pontos;
             struct elemento *pol_pontos = *pol_pontos_lista;
 
-            glColor3dv(aux->poligono.rgb_color);
-            glLineWidth(1);
+            glColor3dv(aux->poligono.selected ? rgb4selected : aux->poligono.rgb_color);
+
             glBegin(GL_POLYGON);
             while(pol_pontos != NULL){
                 glVertex2d(pol_pontos->ponto.x, pol_pontos->ponto.y);
@@ -185,6 +188,7 @@ int ListaPoligonosVazia(ListaPoligonos *ldse){
 void salvarListaPoligonos(FILE *fp, ListaPoligonos *lista){
     ListaPoligonos primeiro = *lista;
     while (primeiro != NULL) {
+        primeiro->poligono.selected = 0;
         fwrite(&primeiro->poligono, sizeof(Poligono), 1, fp);
         salvarListaPontos(fp, primeiro->poligono.pontos);
         primeiro = primeiro->proximo;
@@ -207,4 +211,48 @@ void carregarListaPoligonos(FILE *fp, EstadoExecucao *estado){
         }
         ListaPoligonosInserirFim(estado->poligonos_criados, poli);
     }
+}
+
+
+Poligono *pickPolygonTest(Poligono *poly, int mouseX, int mouseY){
+    int cont = 0;
+
+    ListaPontos listNode = *poly->pontos;
+    Ponto *firstPonto = &listNode->ponto;
+    while (listNode != NULL){
+
+        Ponto *arestaP1 = &listNode->ponto;
+        Ponto *arestaP2 = listNode->proximo == NULL ? firstPonto : &listNode->proximo->ponto;
+
+        if ((mouseY < arestaP1->y) != (mouseY < arestaP2->y) &&
+            mouseX < (arestaP1->x + ((mouseY-arestaP1->y)/(arestaP2->y-arestaP1->y))*(arestaP2->x-arestaP1->x))){
+
+            cont++;
+        }
+
+        listNode = listNode->proximo;
+    }
+    printf("%s - mouse: (%d, %d)[][][][]\n", cont % 2 == 1 ? "Dentro" : "Fora", mouseX, mouseY);
+    if(cont % 2 == 1){
+        poly->selected = 1;
+        return poly;
+    }
+
+    return NULL;
+}
+
+Poligono *pickPolygonIteration(ListaPoligonos *lista, int mouseX, int mouseY){
+    ListaPoligonos listNode = *lista;
+    Poligono *selected;
+
+    while (listNode != NULL){
+        selected = pickPolygonTest(&listNode->poligono, mouseX, mouseY);
+
+        if (selected != NULL){
+            return selected;
+        }
+
+        listNode = listNode->proximo;
+    }
+    return NULL;
 }

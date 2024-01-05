@@ -4,6 +4,15 @@
 #define MAX_BUTTONS 10
 #define MAX_TEXTS 10
 #define MAX_CARACTERE 50
+#define CLICK_TOLERANCE 10
+
+enum positions{
+    TOP = 1,
+    LEFT = 8,
+    RIGHT = 4,
+    BOTTOM = 2,
+    INSIDE = 0
+};
 
 enum tiposCliques{
     cliqueNovoArquivo = 1,
@@ -64,6 +73,7 @@ struct ponto{
     double x;
     double y;
     double rgb_color[3];
+    int selected;
 };
 
 struct reta{
@@ -71,7 +81,7 @@ struct reta{
     Ponto ponto1;
     Ponto ponto2;
     double rgb_color[3];
-
+    int selected;
 };
 
 struct poligono{
@@ -79,7 +89,7 @@ struct poligono{
     int qtd_pontos;
     ListaPontos *pontos;
     double rgb_color[3];
-
+    int selected;
 };
 
 typedef struct{
@@ -95,6 +105,12 @@ typedef struct{
     ListaPoligonos *poligonos_criados;
 
     int currentPage;
+
+    Ponto *lastPointSelected;
+    Reta *lastLineSelected;
+    Poligono *lastPolygonSelected;
+
+    Button *lastButtonPressed;
 } EstadoExecucao;
 
 

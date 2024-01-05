@@ -150,11 +150,12 @@ int desenhaRetas(ListaRetas *ldse){
         return 0;
     }else{
         ElementoReta *aux = *ldse;
-
+        double rgb4selected[] = {1, 0.647, 0};
         glLineWidth(5.0);
         glBegin(GL_LINES);
+
         while(aux != NULL){
-            glColor3dv(aux->reta.rgb_color);
+            glColor3dv(aux->reta.selected ? rgb4selected : aux->reta.rgb_color);
             glVertex2d(aux->reta.ponto1.x, aux->reta.ponto1.y);
             glVertex2d(aux->reta.ponto2.x, aux->reta.ponto2.y);
             aux = aux->proximo;
@@ -177,6 +178,7 @@ int ListaRetasVazia(ListaRetas *ldse){
 void salvarListaRetas(FILE *fp, ListaRetas *lista){
     ListaRetas primeiro = *lista;
     while (primeiro != NULL) {
+        primeiro->reta.selected = 0;
         fwrite(&primeiro->reta, sizeof(Reta), 1, fp);
         primeiro = primeiro->proximo;
     }
@@ -191,4 +193,99 @@ void carregarListaRetas(FILE *fp, EstadoExecucao *estado){
         fread(&ret, sizeof(Reta), 1, fp);
         ListaRetasInserirFim(estado->retas_criadas, ret);
     }
+}
+
+int encode(Ponto *point, int winXmin, int winYmin, int winXmax, int winYmax) {
+    int code = 0;
+
+  if (point->x < winXmin) {
+    code |= 8;
+  } else if (point->x > winXmax) {
+    code |= 4;
+  }
+
+  if (point->y < winYmin ) {
+    code |= 2;
+  } else if (point->y > winYmax ) {
+    code |= 1;
+  }
+
+  return code;
+}
+
+Reta *pickLineTest(Reta *line, int mouseX, int mouseY){
+
+    int xmin = mouseX-CLICK_TOLERANCE, ymin = mouseY-CLICK_TOLERANCE;
+    int xmax = mouseX+CLICK_TOLERANCE, ymax = mouseY+CLICK_TOLERANCE;
+
+    int code1 = encode(&line->ponto1, xmin, ymin, xmax, ymax);
+    int code2 = encode(&line->ponto2, xmin, ymin, xmax, ymax);
+
+    Ponto tempP1 = {0, line->ponto1.x, line->ponto1.y, 0, 0};
+    Ponto tempP2 = {0, line->ponto2.x, line->ponto2.y, 0, 0};
+
+
+    do {
+
+        int outcodeOut = code1;
+        int c1_and_c2 = code1 & code2;
+
+        if (code1 == INSIDE || code2 == INSIDE){
+
+            line->selected = 1;
+            return line;
+        }
+
+        if((c1_and_c2 & TOP) || (c1_and_c2 & BOTTOM) || (c1_and_c2 & RIGHT) || (c1_and_c2 & LEFT)){ //(outcode1 & outcode2)
+            return NULL;
+        }
+
+        double x, y;
+
+        if (outcodeOut & TOP) {
+            x = tempP1.x + (tempP2.x - tempP1.x) * (ymax - tempP1.y) / (tempP2.y - tempP1.y);
+            y = ymax;
+        } else if (outcodeOut & BOTTOM) {
+            x = tempP1.x + (tempP2.x - tempP1.x) * (ymin - tempP1.y) / (tempP2.y - tempP1.y);
+            y = ymin;
+        } else if (outcodeOut & RIGHT) {
+            y = tempP1.y + (tempP2.y - tempP1.y) * (xmax - tempP1.x) / (tempP2.x - tempP1.x);
+            x = xmax;
+        } else if (outcodeOut & LEFT) {
+            y = tempP1.y + (tempP2.y - tempP1.y) * (xmin - tempP1.x) / (tempP2.x - tempP1.x);
+            x = xmin;
+        }
+       // printf("intersecao(%f, %f) janela = (%d, %d) (%d, %d)\n", x, y, xmin, ymin, xmax, ymax);
+
+        tempP1.x = x;
+        tempP1.y = y;
+
+        code1 = encode(&tempP1, xmin, ymin, xmax, ymax);
+        code2 = encode(&tempP2, xmin, ymin, xmax, ymax);
+        outcodeOut = code1;
+    } while (1);
+
+    printf("Ponto1 code = %d\n", code1);
+    printf("Ponto2 code = %d\n", code2);
+    printf("AND OPERATION = %d\n", code1 & code2);
+    printf("================\n\n");
+
+    return NULL;
+}
+
+
+Reta *pickLineIteration(ListaRetas *lista, int mouseX, int mouseY){
+    ListaRetas listNode = *lista;
+    Reta *selected;
+
+    while (listNode != NULL){
+        selected = pickLineTest(&listNode->reta, mouseX, mouseY);
+
+        if (selected != NULL){
+            return selected;
+        }
+
+        listNode = listNode->proximo;
+    }
+    return NULL;
 }
