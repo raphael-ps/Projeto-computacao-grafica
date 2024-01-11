@@ -22,6 +22,9 @@ const int windowSizeX = 800, windowSizeY = 600;
 const int ortoSizeX = windowSizeX, ortoSizeY = windowSizeY;
 double rgb[3] = {0, 0, 1};
 
+int showPontosPoliProgress = 0, tempListQtdPontos = 0;
+ListaPontos *tempListPontosPoli = NULL;
+
 void translatePoint(Ponto *p, int direction){
     int step = 3;
     printf("%d key pressed\n", direction);
@@ -146,28 +149,28 @@ void handleCliqueCriarRetas(int x, int y){
 
 void handleCliqueCriarPoligonos(int x, int y, int fimDaCaptura){
     double polirgb[3] = {0, 1, 0};
-    static ListaPontos *pontosPoli = NULL;
-    static int qtd_pts = 0;
+    showPontosPoliProgress = 1; //Global Var
 
-    if (pontosPoli == NULL){
-        pontosPoli = criarListaPontos();
+    if (tempListPontosPoli == NULL){ //Global Var
+        tempListPontosPoli = criarListaPontos();
     }
 
     if(!fimDaCaptura){
         Ponto pontoCapturado;
         pontoCapturado.id = 44;
         associar_ponto(&pontoCapturado, x, y, polirgb);
-        qtd_pts++;
-        ListaPontosInserirFim(pontosPoli, pontoCapturado);
+        tempListQtdPontos++; //Global Var
+        ListaPontosInserirFim(tempListPontosPoli, pontoCapturado);
     } else {
-        if (qtd_pts >= 3){
-            criar_poligono(&estado_atual, pontosPoli, qtd_pts, polirgb);
+        if (tempListQtdPontos >= 3){
+            criar_poligono(&estado_atual, tempListPontosPoli, tempListQtdPontos, polirgb);
         }
         else{
-            destruirListaPontos(pontosPoli);
+            destruirListaPontos(tempListPontosPoli);
         }
-        pontosPoli = NULL;
-        qtd_pts = 0;
+        tempListPontosPoli = NULL;
+        tempListQtdPontos = 0;
+        showPontosPoliProgress = 0;
     }
 }
 
@@ -358,6 +361,16 @@ void display(){
         break;
     case drawPage:
         showPage(&drawingPage);
+        if (showPontosPoliProgress){
+            ListaPontos aux = *tempListPontosPoli;
+            glColor3d(0, 0, 0);
+            glBegin(GL_LINE_STRIP);
+            while(aux != NULL){
+                glVertex2d(aux->ponto.x, aux->ponto.y);
+                aux = aux->proximo;
+            }
+            glEnd();
+        }
         break;
     case notFoundPage:
         showPage(&errorPage);
