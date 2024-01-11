@@ -22,6 +22,7 @@ EstadoExecucao *criar_execucao(EstadoExecucao *novo_estado){
     static int id = 0;
 
     //EstadoExecucao *novo_estado = (EstadoExecucao *) malloc(sizeof(EstadoExecucao));
+    novo_estado->lastObjectId = 0;
     novo_estado->currentPage = homePage;
     novo_estado->pontos_criados = criarListaPontos();
     novo_estado->retas_criadas = criarListaRetas();
@@ -51,10 +52,10 @@ void showPage(ProgramPage *pagina){
 }
 
 int criar_ponto(EstadoExecucao *estado_atual, double coord_x, double coord_y, double rgb_vector[3]){
-    static int id = 0;
+
     Ponto novo_ponto;
 
-    novo_ponto.id = id;
+    novo_ponto.id = estado_atual->lastObjectId;
     novo_ponto.selected = 0;
     associar_ponto(&novo_ponto, coord_x, coord_y, rgb_vector);
     if (estado_atual != NULL){
@@ -66,7 +67,7 @@ int criar_ponto(EstadoExecucao *estado_atual, double coord_x, double coord_y, do
         }
     }
 
-    id++;
+    estado_atual->lastObjectId++;
     return 0;
 }
 
@@ -117,11 +118,11 @@ void drawText(Text texto){
 }
 
 int criar_reta(EstadoExecucao *estado_atual, Ponto ponto1, Ponto ponto2, double rgb_vector[3]){
-    static int id = 0;
+
     Reta nova_reta;
     nova_reta.ponto1 = ponto1;
     nova_reta.ponto2 = ponto2;
-    nova_reta.id = id;
+    nova_reta.id = estado_atual->lastObjectId;
     nova_reta.rgb_color[0] = rgb_vector[0];
     nova_reta.rgb_color[1] = rgb_vector[1];
     nova_reta.rgb_color[2] = rgb_vector[2];
@@ -134,16 +135,16 @@ int criar_reta(EstadoExecucao *estado_atual, Ponto ponto1, Ponto ponto2, double 
         return 1;
     }
 
-    id++;
+    estado_atual->lastObjectId++;
     return 0;
 }
 
 int criar_poligono(EstadoExecucao *estado_atual, ListaPontos *pontos, int qtd_pon_pol, double rgb_vector[3]){
-    static int id = 0;
+
 
     Poligono novo_poligono;
 
-    novo_poligono.id = id;
+    novo_poligono.id = estado_atual->lastObjectId;
     novo_poligono.pontos = pontos;
     novo_poligono.qtd_pontos = qtd_pon_pol;
     novo_poligono.rgb_color[0] = rgb_vector[0];
@@ -158,7 +159,7 @@ int criar_poligono(EstadoExecucao *estado_atual, ListaPontos *pontos, int qtd_po
         return 1;
     }
 
-    id++;
+    estado_atual->lastObjectId++;
     return 0;
 }
 

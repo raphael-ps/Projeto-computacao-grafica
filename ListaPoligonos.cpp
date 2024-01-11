@@ -160,7 +160,7 @@ int desenhaPoligonos(ListaPoligonos *ldse){
             struct elemento *pol_pontos = *pol_pontos_lista;
 
             glColor3dv(aux->poligono.selected ? rgb4selected : aux->poligono.rgb_color);
-
+            printf("Poly id = %d\n", aux->poligono.id);
             glBegin(GL_POLYGON);
             while(pol_pontos != NULL){
                 glVertex2d(pol_pontos->ponto.x, pol_pontos->ponto.y);

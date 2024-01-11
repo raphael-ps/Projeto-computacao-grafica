@@ -939,7 +939,7 @@
 
 1703610241 c:\users\softex\documents\cg-paint\listapoligonos.hpp
 
-1704408934 source:c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.cpp
+1705015944 source:c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.cpp
 	<stdio.h>
 	<stdlib.h>
 	<GL/glut.h>
@@ -948,7 +948,7 @@
 	"ListaPontos.hpp"
 	"ListaPoligonos.hpp"
 
-1704406871 c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.hpp
+1705015797 c:\users\softex\documents\github\projeto-computacao-grafica\estruturas.hpp
 
 1704405308 c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.hpp
 	"estruturas.hpp"
@@ -959,21 +959,21 @@
 1704405115 c:\users\softex\documents\github\projeto-computacao-grafica\listapoligonos.hpp
 	"estruturas.hpp"
 
-1704411845 source:c:\users\softex\documents\github\projeto-computacao-grafica\listapontos.cpp
+1705014889 source:c:\users\softex\documents\github\projeto-computacao-grafica\listapontos.cpp
 	<stdlib.h>
 	<stdio.h>
 	<GL/glut.h>
 	"ListaPontos.hpp"
 	"estruturas.hpp"
 
-1704411845 source:c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.cpp
+1705014889 source:c:\users\softex\documents\github\projeto-computacao-grafica\listaretas.cpp
 	<stdlib.h>
 	<stdio.h>
 	<GL/glut.h>
 	"ListaRetas.hpp"
 	"estruturas.hpp"
 
-1704413128 source:c:\users\softex\documents\github\projeto-computacao-grafica\main.cpp
+1705015320 source:c:\users\softex\documents\github\projeto-computacao-grafica\main.cpp
 	<GLUT/glut.h>
 	<GL/glut.h>
 	<stdio.h>
@@ -984,7 +984,7 @@
 	"ListaRetas.hpp"
 	"ListaPoligonos.hpp"
 
-1704411845 source:c:\users\softex\documents\github\projeto-computacao-grafica\listapoligonos.cpp
+1705014875 source:c:\users\softex\documents\github\projeto-computacao-grafica\listapoligonos.cpp
 	<stdlib.h>
 	<stdio.h>
 	<GL/glut.h>
@@ -992,7 +992,7 @@
 	"ListaPontos.hpp"
 	"estruturas.hpp"
 
-1703871377 source:c:\users\softex\documents\github\projeto-computacao-grafica\myutils.cpp
+1705010497 source:c:\users\softex\documents\github\projeto-computacao-grafica\myutils.cpp
 	<GL/glut.h>
 	<stdio.h>
 	<stdlib.h>

@@ -22,14 +22,64 @@ const int windowSizeX = 800, windowSizeY = 600;
 const int ortoSizeX = windowSizeX, ortoSizeY = windowSizeY;
 double rgb[3] = {0, 0, 1};
 
-void handleKeyboardIn(unsigned char key, int x, int y) {
+void translatePoint(Ponto *p, int direction){
+    int step = 3;
+    printf("%d key pressed\n", direction);
+
+    switch (direction){
+    case 119:
+        p->y += step;
+        printf("w %d\n", direction);
+        break;
+    case 97:
+        p->x -= step;
+        printf("a %d\n", direction);
+        break;
+    case 115:
+        p->y -= step;
+        printf("s %d\n", direction);
+        break;
+    case 100:
+        p->x += step;
+        printf("d %d\n", direction);
+        break;
+    }
+}
+
+void translatePolygon(Poligono *poly, int direction){
+    ListaPontos *pontosPoli = poly->pontos;
+    ListaPontos first = *pontosPoli;
+
+    while (first != NULL){
+        translatePoint(&first->ponto, direction);
+        first = first->proximo;
+    }
+}
+
+void translateLine(Reta *r, int direction){
+    translatePoint(&r->ponto1, direction);
+    translatePoint(&r->ponto2, direction);
+}
+
+void handleKeyboardDownIn(unsigned char key, int x, int y){
+    if (estado_atual.lastPointSelected != NULL){
+        translatePoint(estado_atual.lastPointSelected, key);
+    }
+    else if (estado_atual.lastLineSelected){
+        translateLine(estado_atual.lastLineSelected, key);
+    } else if (estado_atual.lastPolygonSelected != NULL){
+        translatePolygon(estado_atual.lastPolygonSelected, key);
+    }
+    glutPostRedisplay();
+}
+
+void handleKeyboardUpIn(unsigned char key, int x, int y) {
     printf("%c %d ------0-0-\n", key, (int) key);
 
     if ((int) key == 127){
-        printf(" 1 Here BRO\n");
+
         if (estado_atual.lastButtonPressed != NULL &&
             estado_atual.lastButtonPressed->id == cliqueSelecionarobjeto && estado_atual.currentPage == drawPage){
-            printf(" 2 Here BRO\n");
             if(estado_atual.lastPointSelected != NULL){
                 if (ListaPontosRemoverValor(estado_atual.pontos_criados, estado_atual.lastPointSelected->id) ){
                     estado_atual.lastPointSelected = NULL;
@@ -37,9 +87,9 @@ void handleKeyboardIn(unsigned char key, int x, int y) {
                 };
 
             } else if (estado_atual.lastLineSelected != NULL){
-                printf(" 3 Here BRO\n");
+
                 if (ListaRetasRemoverValor(estado_atual.retas_criadas, estado_atual.lastLineSelected->id) ){
-                    printf(" 4 Here BRO\n");
+
                     estado_atual.lastLineSelected = NULL;
                     estado_atual.qtd_retas--;
                 };
@@ -398,8 +448,8 @@ int main(int argc, char** argv){
 
     glutMouseFunc(mouseClickHandler);
     glutPassiveMotionFunc(mouseEnterButton);
-    glutKeyboardUpFunc(handleKeyboardIn);
-
+    glutKeyboardUpFunc(handleKeyboardUpIn);
+    glutKeyboardFunc(handleKeyboardDownIn);
     //atexit(exitCallback);
 
     init();

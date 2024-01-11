@@ -161,6 +161,7 @@ int desenhaPontos(ListaPontos *ldse){
         while(aux2 != NULL){
             glColor3dv(aux2->ponto.selected ? rgb4selected : aux2->ponto.rgb_color);
             glVertex2d(aux2->ponto.x, aux2->ponto.y); //define localização do vértice
+            printf("Ponto id = %d\n", aux2->ponto.id);
             aux2 = aux2->proximo;
         }
         glEnd();

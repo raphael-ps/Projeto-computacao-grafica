@@ -95,6 +95,8 @@ struct poligono{
 typedef struct{
     int id;
 
+    int lastObjectId;
+
     int qtd_pontos;
     ListaPontos *pontos_criados;
 

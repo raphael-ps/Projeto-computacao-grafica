@@ -158,6 +158,7 @@ int desenhaRetas(ListaRetas *ldse){
             glColor3dv(aux->reta.selected ? rgb4selected : aux->reta.rgb_color);
             glVertex2d(aux->reta.ponto1.x, aux->reta.ponto1.y);
             glVertex2d(aux->reta.ponto2.x, aux->reta.ponto2.y);
+            printf("Reta id = %d\n", aux->reta.id);
             aux = aux->proximo;
         }
         glEnd();
