@@ -24,9 +24,10 @@ double rgb[3] = {0, 0, 1};
 
 int showPontosPoliProgress = 0, tempListQtdPontos = 0;
 ListaPontos *tempListPontosPoli = NULL;
+Ponto *lastPolyPontoCatched;
 
 int showRetaProgress = 0;
-Ponto *tempRetaPonto = NULL;
+Ponto *tempRetaPonto1 = NULL, tempPonto2;
 
 void translatePoint(Ponto *p, int direction){
     int step = 3;
@@ -137,17 +138,17 @@ void handleCliqueCriarRetas(int x, int y){
     static Ponto ponto1, ponto2;
     static int qtd = 0;
 
-    if(qtd == 0 || (qtd == 1 && tempRetaPonto == NULL)){
+    if(qtd == 0 || (qtd == 1 && tempRetaPonto1 == NULL)){
         ponto1.id = 11;
         associar_ponto(&ponto1, x, y, rrgb);
-        tempRetaPonto = &ponto1;
+        tempRetaPonto1 = &ponto1;
         showRetaProgress = 1;
         qtd = 1;
     } else {
         ponto2.id = 12;
         associar_ponto(&ponto2, x, y, rrgb);
         criar_reta(&estado_atual, ponto1, ponto2, rrgb);
-        tempRetaPonto = NULL;
+        tempRetaPonto1 = NULL;
         showRetaProgress = 0;
         qtd = 0;
     }
@@ -296,14 +297,13 @@ void mouseClickHandler(int button, int state, int x, int y) {
                 destruirListaPontos(tempListPontosPoli);
                 tempListQtdPontos = 0;
                 tempListPontosPoli = NULL;
-                tempRetaPonto = NULL;
+                tempRetaPonto1 = NULL;
                 showRetaProgress = 0;
                 break;
             }
         }
 
         if (!houve_botao_clicado && estado_atual.currentPage == drawPage && estado_atual.lastButtonPressed){
-                printf("te achei danado\n");
             switch(estado_atual.lastButtonPressed->id){
             case cliqueCriarPontos:
                 handleCliqueCriarPontos(x, y);
@@ -371,18 +371,25 @@ void showPolygonProgress(){
     glColor3d(0, 0, 0);
     printf(" xesquedeleeee = %d\n", tempListQtdPontos);
     if (tempListQtdPontos <= 1){
-        glBegin(GL_POINTS);
-            glVertex2d(aux->ponto.x, aux->ponto.y);
-        glEnd();
+        lastPolyPontoCatched = &aux->ponto;
     }
     else {
         glBegin(GL_LINE_STRIP);
-        while(aux != NULL){
+        while (1){
             glVertex2d(aux->ponto.x, aux->ponto.y);
+            if (aux->proximo == NULL){
+                lastPolyPontoCatched = &aux->ponto;
+                break;
+            }
             aux = aux->proximo;
         }
         glEnd();
     }
+
+    glBegin(GL_LINES);
+        glVertex2d(lastPolyPontoCatched->x, lastPolyPontoCatched->y);
+        glVertex2d(tempPonto2.x, tempPonto2.y);
+    glEnd();
 }
 
 void display(){
@@ -402,8 +409,9 @@ void display(){
             showPolygonProgress();
         } else if(showRetaProgress){
             glColor3d(0, 0, 0);
-            glBegin(GL_POINTS);
-                glVertex2d(tempRetaPonto->x, tempRetaPonto->y);
+            glBegin(GL_LINES);
+                glVertex2d(tempRetaPonto1->x, tempRetaPonto1->y);
+                glVertex2d(tempPonto2.x, tempPonto2.y);
             glEnd();
         }
         break;
@@ -473,6 +481,14 @@ void mouseEnterButton(int x , int y){
             currentPage->pageButtons[c].ativo = 0;
             glutPostRedisplay();
             break;
+        }
+    }
+
+    if (currentPage->pageID == drawPage){
+        tempPonto2.x = x;
+        tempPonto2.y = y;
+        if (showRetaProgress || showPontosPoliProgress){
+            glutPostRedisplay();
         }
     }
 }
