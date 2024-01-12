@@ -284,6 +284,11 @@ void mouseClickHandler(int button, int state, int x, int y) {
                 estado_atual.lastButtonPressed->pressed = 1;
                 printf("Botao -%s- clicado\n", currentPage->pageButtons[c].label.texto);
                 houve_botao_clicado = 1;
+                showPontosPoliProgress = 0;
+                destruirListaPontos(tempListPontosPoli);
+                tempListQtdPontos = 0;
+                tempListPontosPoli = NULL;
+
                 break;
             }
         }
@@ -348,6 +353,28 @@ void drawMenu() {
     }
 }**/
 
+void showPolygonProgress(){
+    if (tempListPontosPoli == NULL)
+        return;
+
+    ListaPontos aux = *tempListPontosPoli;
+    glColor3d(0, 0, 0);
+    printf(" xesquedeleeee = %d\n", tempListQtdPontos);
+    if (tempListQtdPontos <= 1){
+        glBegin(GL_POINTS);
+            glVertex2d(aux->ponto.x, aux->ponto.y);
+        glEnd();
+    }
+    else {
+        glBegin(GL_LINE_STRIP);
+        while(aux != NULL){
+            glVertex2d(aux->ponto.x, aux->ponto.y);
+            aux = aux->proximo;
+        }
+        glEnd();
+    }
+}
+
 void display(){
 
   glClear(GL_COLOR_BUFFER_BIT);
@@ -362,14 +389,7 @@ void display(){
     case drawPage:
         showPage(&drawingPage);
         if (showPontosPoliProgress){
-            ListaPontos aux = *tempListPontosPoli;
-            glColor3d(0, 0, 0);
-            glBegin(GL_LINE_STRIP);
-            while(aux != NULL){
-                glVertex2d(aux->ponto.x, aux->ponto.y);
-                aux = aux->proximo;
-            }
-            glEnd();
+            showPolygonProgress();
         }
         break;
     case notFoundPage:
