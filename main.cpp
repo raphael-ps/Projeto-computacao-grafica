@@ -11,6 +11,7 @@
 #include "ListaPontos.hpp"
 #include "ListaRetas.hpp"
 #include "ListaPoligonos.hpp"
+#include <math.h>
 
 void drawMenu();
 void drawErrorPage();
@@ -24,10 +25,132 @@ double rgb[3] = {0, 0, 1};
 
 int showPontosPoliProgress = 0, tempListQtdPontos = 0;
 ListaPontos *tempListPontosPoli = NULL;
-Ponto *lastPolyPontoCatched;
+Ponto *lastPolyPontoCatched, polyCentroide;
 
 int showRetaProgress = 0;
 Ponto *tempRetaPonto1 = NULL, tempPonto2;
+
+void multiply_matriz_ponto(double matrizA[3][3], Ponto *destino) {
+    double matrizPonto[3][1] = {destino->x, destino->y, 1};
+    double result[3][1] = {0};
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 1; j++) {
+            for (int k = 0; k < 3; k++) {
+                result[i][j] += matrizA[i][k] * matrizPonto[k][j];
+            }
+        }
+    }
+
+    destino->x = result[0][0];
+    destino->y = result[1][0];
+}
+
+void getCompostaDaEscala(double mDestino[3][3], unsigned char key, Ponto centroide){
+    double scaleStepX = 1, scaleStepY = 1;
+    scaleStepX += key == 3 ? 0.1 : -0.1;
+    scaleStepY += key == 3 ? 0.1 : -0.1;
+
+    double compostaRotacao[3][3] = {scaleStepX,     0     , (centroide.x - (scaleStepX * centroide.x)),
+                                        0     , scaleStepY, (centroide.y - (scaleStepY * centroide.y)),
+                                        0     ,     0     ,                     1
+                                   };
+    for (int i = 0; i < 3; i++){
+        for (int j = 0; j < 3; j++){
+            mDestino[i][j] = compostaRotacao[i][j];
+        }
+    }
+}
+
+void escalarPolygon(unsigned char key){
+
+    double matrizComposta[3][3] = {0};
+    getCompostaDaEscala(matrizComposta, key, estado_atual.lastPolygonSelected->centroide);
+
+    ListaPontos *pontosPoli = estado_atual.lastPolygonSelected->pontos;
+    ListaPontos first = *pontosPoli;
+
+    while (first != NULL){
+        multiply_matriz_ponto(matrizComposta, &first->ponto);
+        first = first->proximo;
+    }
+}
+
+void escalarLine(unsigned char key){
+    double matrizComposta[3][3] = {0};
+    getCompostaDaEscala(matrizComposta, key, estado_atual.lastLineSelected->centroide);
+
+    multiply_matriz_ponto(matrizComposta, &estado_atual.lastLineSelected->ponto1);
+    multiply_matriz_ponto(matrizComposta, &estado_atual.lastLineSelected->ponto2);
+
+}
+
+void printMatriz(double matriz[3][3]){
+    printf("\n");
+    for (int i = 0; i < 3; i++){
+        printf("[");
+        for (int j = 0; j < 3; j++){
+            printf("%f ", matriz[i][j]);
+        }
+        printf("]\n");
+    }
+    printf("\n");
+}
+
+void getCompostaDaRotation(double mDestino[3][3], unsigned char key, Ponto centroide){
+
+    double thetaStep = 2 * (M_PI / 180); // Passando o angulo de graus para radianos
+    double cosStep = cos(thetaStep), sinStep = key == '+' ? -sin(thetaStep) : sin(thetaStep);
+
+    double compostaRotacao[3][3] = {cosStep, -sinStep, ( (-cosStep * centroide.x) + (sinStep * centroide.y) + centroide.x),
+                                    sinStep,  cosStep, ( (-sinStep * centroide.x) - (cosStep * centroide.y) + centroide.y),
+                                       0   ,     0   ,                                 1
+                                   };
+    printf(" - pressed 3\n");
+    for (int i = 0; i < 3; i++){
+        for (int j = 0; j < 3; j++){
+            mDestino[i][j] = compostaRotacao[i][j];
+        }
+    }
+}
+
+void rotatePoint(unsigned char key){
+    double matrizComposta[3][3] = {0};
+    Ponto pontoReferencia;
+    pontoReferencia.x = 0;
+    pontoReferencia.y = 0;
+
+    getCompostaDaRotation(matrizComposta, key, pontoReferencia);
+
+    multiply_matriz_ponto(matrizComposta, estado_atual.lastPointSelected);
+}
+
+void rotatePolygon(unsigned char key){
+
+    double matrizComposta[3][3] = {0};
+    getCompostaDaRotation(matrizComposta, key, estado_atual.lastPolygonSelected->centroide);
+
+    ListaPontos *pontosPoli = estado_atual.lastPolygonSelected->pontos;
+    ListaPontos first = *pontosPoli;
+
+    while (first != NULL){
+        multiply_matriz_ponto(matrizComposta, &first->ponto);
+        first = first->proximo;
+    }
+}
+
+void rotateLine(unsigned char key){
+    if(estado_atual.lastLineSelected == NULL){
+        return;
+    }
+
+    double matrizComposta[3][3] = {0};
+    getCompostaDaRotation(matrizComposta, key, estado_atual.lastLineSelected->centroide);
+
+    multiply_matriz_ponto(matrizComposta, &estado_atual.lastLineSelected->ponto1);
+    multiply_matriz_ponto(matrizComposta, &estado_atual.lastLineSelected->ponto2);
+
+}
 
 void translatePoint(Ponto *p, int direction){
     int step = 3;
@@ -56,28 +179,51 @@ void translatePoint(Ponto *p, int direction){
 void translatePolygon(Poligono *poly, int direction){
     ListaPontos *pontosPoli = poly->pontos;
     ListaPontos first = *pontosPoli;
+    double newCentroideX = 0, newCentroideY = 0;
 
     while (first != NULL){
         translatePoint(&first->ponto, direction);
+        newCentroideX += first->ponto.x;
+        newCentroideY += first->ponto.y;
         first = first->proximo;
     }
+
+    poly->centroide.x = newCentroideX / poly->qtd_pontos;
+    poly->centroide.y = newCentroideY / poly->qtd_pontos;
 }
 
 void translateLine(Reta *r, int direction){
     translatePoint(&r->ponto1, direction);
     translatePoint(&r->ponto2, direction);
+    r->centroide.x = (r->ponto1.x + r->ponto2.x) / 2;
+    r->centroide.y = (r->ponto1.y + r->ponto2.y) / 2;
 }
 
 void handleKeyboardDownIn(unsigned char key, int x, int y){
-    if (estado_atual.lastPointSelected != NULL){
-        translatePoint(estado_atual.lastPointSelected, key);
+    if (key == 'w' || key == 'a' || key == 's' || key == 'd'){
+        if (estado_atual.lastPointSelected != NULL){
+            translatePoint(estado_atual.lastPointSelected, key);
+        }
+        else if (estado_atual.lastLineSelected){
+            translateLine(estado_atual.lastLineSelected, key);
+        } else if (estado_atual.lastPolygonSelected != NULL){
+            translatePolygon(estado_atual.lastPolygonSelected, key);
+        }
+        glutPostRedisplay();
     }
-    else if (estado_atual.lastLineSelected){
-        translateLine(estado_atual.lastLineSelected, key);
-    } else if (estado_atual.lastPolygonSelected != NULL){
-        translatePolygon(estado_atual.lastPolygonSelected, key);
+    else if (key == '+' || key == '-'){
+        if (estado_atual.lastPointSelected != NULL){
+            rotatePoint(key);
+        }
+        else if (estado_atual.lastLineSelected != NULL){
+            rotateLine(key);
+        }
+        else if (estado_atual.lastPolygonSelected != NULL){
+            rotatePolygon(key);
+        }
+        glutPostRedisplay();
     }
-    glutPostRedisplay();
+
 }
 
 void handleKeyboardUpIn(unsigned char key, int x, int y) {
@@ -115,13 +261,9 @@ void handleObjectsSelection(int mouseX, int mouseY){
 
     estado_atual.lastPointSelected = pickPontoIteration(estado_atual.pontos_criados, mouseX, mouseY);
 
-    //if(estado_atual.lastPointSelected){
-     //   lastPointSel = pointSelected;
-    //}
     if (!estado_atual.lastPointSelected){
 
         estado_atual.lastLineSelected = pickLineIteration(estado_atual.retas_criadas, mouseX, mouseY);
-
         if (!estado_atual.lastLineSelected) {
             estado_atual.lastPolygonSelected = pickPolygonIteration(estado_atual.poligonos_criados, mouseX, mouseY);
         }
@@ -160,6 +302,8 @@ void handleCliqueCriarPoligonos(int x, int y, int fimDaCaptura){
 
     if (tempListPontosPoli == NULL){ //Global Var
         tempListPontosPoli = criarListaPontos();
+        polyCentroide.x = 0;
+        polyCentroide.y = 0;
     }
 
     if(!fimDaCaptura){
@@ -168,9 +312,13 @@ void handleCliqueCriarPoligonos(int x, int y, int fimDaCaptura){
         associar_ponto(&pontoCapturado, x, y, polirgb);
         tempListQtdPontos++; //Global Var
         ListaPontosInserirFim(tempListPontosPoli, pontoCapturado);
+        polyCentroide.x += pontoCapturado.x;
+        polyCentroide.y += pontoCapturado.y;
     } else {
         if (tempListQtdPontos >= 3){
-            criar_poligono(&estado_atual, tempListPontosPoli, tempListQtdPontos, polirgb);
+            polyCentroide.x /= tempListQtdPontos;
+            polyCentroide.y /= tempListQtdPontos;
+            criar_poligono(&estado_atual, tempListPontosPoli, polyCentroide, tempListQtdPontos, polirgb);
         }
         else{
             destruirListaPontos(tempListPontosPoli);
@@ -267,6 +415,22 @@ void mouseClickHandler(int button, int state, int x, int y) {
     y = (ortoSizeY - y);
     ProgramPage *currentPage = getCurrentPage();
     int houve_botao_clicado = 0;
+
+    if (button == 3 || button == 4){
+        if (state == GLUT_UP || estado_atual.lastPointSelected != NULL){
+            return;
+        }
+
+        if (estado_atual.lastLineSelected != NULL){
+            escalarLine(button);
+        }
+        else if (estado_atual.lastPolygonSelected != NULL){
+            escalarPolygon(button);
+        }
+
+        glutPostRedisplay();
+        return;
+    }
 
     // Check if the left mouse button was clicked and released
     if (estado_atual.lastLineSelected){

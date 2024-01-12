@@ -122,11 +122,16 @@ int criar_reta(EstadoExecucao *estado_atual, Ponto ponto1, Ponto ponto2, double 
     Reta nova_reta;
     nova_reta.ponto1 = ponto1;
     nova_reta.ponto2 = ponto2;
+
+    nova_reta.centroide.x = (ponto1.x + ponto2.x) / 2;
+    nova_reta.centroide.y = (ponto1.y + ponto2.y) / 2;
+
     nova_reta.id = estado_atual->lastObjectId;
     nova_reta.rgb_color[0] = rgb_vector[0];
     nova_reta.rgb_color[1] = rgb_vector[1];
     nova_reta.rgb_color[2] = rgb_vector[2];
     nova_reta.selected = 0;
+
     if (ListaRetasInserirFim(estado_atual->retas_criadas, nova_reta)){
         estado_atual->qtd_retas++;
     }
@@ -139,7 +144,7 @@ int criar_reta(EstadoExecucao *estado_atual, Ponto ponto1, Ponto ponto2, double 
     return 0;
 }
 
-int criar_poligono(EstadoExecucao *estado_atual, ListaPontos *pontos, int qtd_pon_pol, double rgb_vector[3]){
+int criar_poligono(EstadoExecucao *estado_atual, ListaPontos *pontos, Ponto centroide, int qtd_pon_pol, double rgb_vector[3]){
 
 
     Poligono novo_poligono;
@@ -151,6 +156,8 @@ int criar_poligono(EstadoExecucao *estado_atual, ListaPontos *pontos, int qtd_po
     novo_poligono.rgb_color[1] = rgb_vector[1];
     novo_poligono.rgb_color[2] = rgb_vector[2];
     novo_poligono.selected = 0;
+    novo_poligono.centroide = centroide;
+
     if (ListaPoligonosInserirFim(estado_atual->poligonos_criados, novo_poligono)){
         estado_atual->qtd_poligonos++;
     }

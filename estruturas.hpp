@@ -80,6 +80,7 @@ struct reta{
     int id;
     Ponto ponto1;
     Ponto ponto2;
+    Ponto centroide;
     double rgb_color[3];
     int selected;
 };
@@ -88,6 +89,7 @@ struct poligono{
     int id;
     int qtd_pontos;
     ListaPontos *pontos;
+    Ponto centroide;
     double rgb_color[3];
     int selected;
 };
@@ -124,7 +126,7 @@ EstadoExecucao *criar_execucao(EstadoExecucao *novo_estado);
 //Ponto *criar_ponto(EstadoExecucao *estado_atual, double coord_x, double coord_y, double rgb_vector[3]);
 int criar_ponto(EstadoExecucao *estado_atual, double coord_x, double coord_y, double rgb_vector[3]);
 int criar_reta(EstadoExecucao *estado_atual, Ponto ponto1, Ponto ponto2, double rgb_vector[3]);
-int criar_poligono(EstadoExecucao *estado_atual, ListaPontos *pontos, int qtd_pon_pol, double rgb_vector[3]);
+int criar_poligono(EstadoExecucao *estado_atual, ListaPontos *pontos, Ponto centroide, int qtd_pon_pol, double rgb_vector[3]);
 int criar_text(Text *destino, char *msg, void *font, double xStart, double yStart);
 void drawText(Text texto);
 int criar_pagina(ProgramPage *destino, int pageID, void (*pageFunction)(void));
