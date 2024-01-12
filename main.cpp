@@ -260,7 +260,9 @@ ProgramPage *getCurrentPage(){
 }
 
 void mouseClickHandler(int button, int state, int x, int y) {
-    printf("HERE\n");
+    printf("Click catched = %d state = %d\n", button, state);
+    printf("LastButtonPressed = %d\n",  estado_atual.lastButtonPressed ? estado_atual.lastButtonPressed->id : 0);
+
     y = (ortoSizeY - y);
     ProgramPage *currentPage = getCurrentPage();
     int houve_botao_clicado = 0;
@@ -300,7 +302,8 @@ void mouseClickHandler(int button, int state, int x, int y) {
             }
         }
 
-        if (!houve_botao_clicado && estado_atual.currentPage == drawPage){
+        if (!houve_botao_clicado && estado_atual.currentPage == drawPage && estado_atual.lastButtonPressed){
+                printf("te achei danado\n");
             switch(estado_atual.lastButtonPressed->id){
             case cliqueCriarPontos:
                 handleCliqueCriarPontos(x, y);
