@@ -25,6 +25,9 @@ double rgb[3] = {0, 0, 1};
 int showPontosPoliProgress = 0, tempListQtdPontos = 0;
 ListaPontos *tempListPontosPoli = NULL;
 
+int showRetaProgress = 0;
+Ponto *tempRetaPonto = NULL;
+
 void translatePoint(Ponto *p, int direction){
     int step = 3;
     printf("%d key pressed\n", direction);
@@ -134,15 +137,18 @@ void handleCliqueCriarRetas(int x, int y){
     static Ponto ponto1, ponto2;
     static int qtd = 0;
 
-    if(qtd % 2 == 0){
+    if(qtd == 0 || (qtd == 1 && tempRetaPonto == NULL)){
         ponto1.id = 11;
         associar_ponto(&ponto1, x, y, rrgb);
-        qtd++;
+        tempRetaPonto = &ponto1;
+        showRetaProgress = 1;
+        qtd = 1;
     } else {
         ponto2.id = 12;
         associar_ponto(&ponto2, x, y, rrgb);
         criar_reta(&estado_atual, ponto1, ponto2, rrgb);
-
+        tempRetaPonto = NULL;
+        showRetaProgress = 0;
         qtd = 0;
     }
 }
@@ -288,7 +294,8 @@ void mouseClickHandler(int button, int state, int x, int y) {
                 destruirListaPontos(tempListPontosPoli);
                 tempListQtdPontos = 0;
                 tempListPontosPoli = NULL;
-
+                tempRetaPonto = NULL;
+                showRetaProgress = 0;
                 break;
             }
         }
@@ -390,6 +397,11 @@ void display(){
         showPage(&drawingPage);
         if (showPontosPoliProgress){
             showPolygonProgress();
+        } else if(showRetaProgress){
+            glColor3d(0, 0, 0);
+            glBegin(GL_POINTS);
+                glVertex2d(tempRetaPonto->x, tempRetaPonto->y);
+            glEnd();
         }
         break;
     case notFoundPage:
