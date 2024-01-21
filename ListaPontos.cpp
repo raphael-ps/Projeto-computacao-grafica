@@ -154,7 +154,7 @@ int desenhaPontos(ListaPontos *ldse){
     if(ldse == NULL){
         return 0;
     }else{
-        glPointSize(5.0);
+        glPointSize(7.0);
         glBegin(GL_POINTS);
         double rgb4selected[] = {1, 0.647, 0};
         Elemento *aux2 = *ldse;

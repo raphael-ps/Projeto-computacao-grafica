@@ -152,7 +152,7 @@ int desenhaPoligonos(ListaPoligonos *ldse){
     }else{
         ElementoPoli *aux = *ldse;
         double rgb4selected[] = {1, 0.647, 0};
-        glLineWidth(5.0);
+        glLineWidth(7.0);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         while(aux != NULL){

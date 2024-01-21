@@ -45,6 +45,7 @@ void showPage(ProgramPage *pagina){
     for (int c = 0; c < pagina->qtd_buttons; c++){
         drawButton(&pagina->pageButtons[c]);
     }
+    glColor3d(1, 1, 1);
     for (int c = 0; c < pagina->qtd_texts; c++){
         drawText(pagina->pageTexts[c]);
     }

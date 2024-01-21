@@ -6,7 +6,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "myUtils.hpp"
 #include "estruturas.hpp"
 #include "ListaPontos.hpp"
 #include "ListaRetas.hpp"
@@ -14,14 +13,14 @@
 #include <math.h>
 
 void drawMenu();
-void drawErrorPage();
+
 
 EstadoExecucao estado_atual;
-ProgramPage paginaHome, errorPage, drawingPage;
+ProgramPage paginaHome, drawingPage;
 
 const int windowSizeX = 800, windowSizeY = 600;
 const int ortoSizeX = windowSizeX, ortoSizeY = windowSizeY;
-double rgb[3] = {0, 0, 1};
+double rgb[3] = {0.1, 0.5, 0.5};
 
 int showPontosPoliProgress = 0, tempListQtdPontos = 0;
 ListaPontos *tempListPontosPoli = NULL;
@@ -341,7 +340,7 @@ int carregarArquivo(EstadoExecucao *execucao){
     FILE *fp = fopen("estado_execucao", "rb");
 
     if (fp == NULL) {
-        printf("O arquivo não existe, um novo será criado\n");
+        printf("O arquivo nï¿½o existe, um novo serï¿½ criado\n");
         execucao = criar_execucao(execucao);
     }
     else{
@@ -400,8 +399,6 @@ ProgramPage *getCurrentPage(){
         case drawPage:
             current = &drawingPage;
             break;
-        default:
-            current = &errorPage;
     }
 
     return current;
@@ -412,11 +409,11 @@ void mouseClickHandler(int button, int state, int x, int y) {
     printf("Click catched = %d state = %d\n", button, state);
     printf("LastButtonPressed = %d\n",  estado_atual.lastButtonPressed ? estado_atual.lastButtonPressed->id : 0);
 
-    y = (ortoSizeY - y);
+    y = (ortoSizeY - y); //"conserta" a coordenada ndo mouse
     ProgramPage *currentPage = getCurrentPage();
     int houve_botao_clicado = 0;
 
-    if (button == 3 || button == 4){
+    if (button == 3 || button == 4){ //Escalar objetos
         if (state == GLUT_UP || estado_atual.lastPointSelected != NULL){
             return;
         }
@@ -432,7 +429,7 @@ void mouseClickHandler(int button, int state, int x, int y) {
         return;
     }
 
-    // Check if the left mouse button was clicked and released
+    // Resetar estado de seleÃ§Ãµes anteriores para evitar erros visuais
     if (estado_atual.lastLineSelected){
         estado_atual.lastLineSelected->selected = 0;
         estado_atual.lastLineSelected = NULL;
@@ -448,7 +445,7 @@ void mouseClickHandler(int button, int state, int x, int y) {
 
     if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
 
-        for (int c = 0; c < currentPage->qtd_buttons; c++){
+        for (int c = 0; c < currentPage->qtd_buttons; c++){ //verifica se o clique foi em algum botao da pagina
             if (isPointInsideButton(x, y, currentPage->pageButtons[c])){
                 if (estado_atual.lastButtonPressed != NULL){
                     estado_atual.lastButtonPressed->pressed = 0;
@@ -458,8 +455,8 @@ void mouseClickHandler(int button, int state, int x, int y) {
                 printf("Botao -%s- clicado\n", currentPage->pageButtons[c].label.texto);
                 houve_botao_clicado = 1;
                 showPontosPoliProgress = 0;
-                destruirListaPontos(tempListPontosPoli);
-                tempListQtdPontos = 0;
+                destruirListaPontos(tempListPontosPoli); //Se o clique tiver sido em um botao, reseta os estados de algumas flags
+                tempListQtdPontos = 0;                   // para evitar erros visuais
                 tempListPontosPoli = NULL;
                 tempRetaPonto1 = NULL;
                 showRetaProgress = 0;
@@ -468,8 +465,8 @@ void mouseClickHandler(int button, int state, int x, int y) {
         }
 
         if (!houve_botao_clicado && estado_atual.currentPage == drawPage && estado_atual.lastButtonPressed){
-            switch(estado_atual.lastButtonPressed->id){
-            case cliqueCriarPontos:
+            switch(estado_atual.lastButtonPressed->id){ //Se o clique nao foi em um botao, verifica se esta na pagina de desenho
+            case cliqueCriarPontos:                     //e se estiver, verifica se o botao clicado eh de um objeto de desenho valido
                 handleCliqueCriarPontos(x, y);
                 break;
             case cliqueCriarRetas:
@@ -488,8 +485,8 @@ void mouseClickHandler(int button, int state, int x, int y) {
         if (!houve_botao_clicado)
             return;
 
-        switch(estado_atual.lastButtonPressed == NULL ? -1 : estado_atual.lastButtonPressed->id){
-
+        switch(estado_atual.lastButtonPressed->id){ //Se o clique foi em um botao, verifica qual foi
+                                                    //e realiza a acao desejada
         case cliqueNovoArquivo:
             criarNovoArquivo(&estado_atual);
             glutSetCursor(GLUT_CURSOR_CROSSHAIR);
@@ -501,31 +498,68 @@ void mouseClickHandler(int button, int state, int x, int y) {
         case cliqueSalvarArquivo:
             salvarArquivo(&estado_atual);
             break;
-        case 404:
-            estado_atual.currentPage = notFoundPage;
-            break;
         default:
             break;
         }
-    } else if (button == GLUT_MIDDLE_BUTTON && state == GLUT_UP && currentPage->pageID == drawPage && estado_atual.lastButtonPressed->id == cliqueCriarPoligonos){
+
+    } else if ((button == GLUT_MIDDLE_BUTTON || button == GLUT_RIGHT_BUTTON) //Verifica se o clique foi para encerrar criacao de poligono
+               && state == GLUT_UP && estado_atual.lastButtonPressed->id == cliqueCriarPoligonos){
         handleCliqueCriarPoligonos(x, y, 1);
     }
 }
-/**
+
+void drawTriangles(int inverter, double startY, double height){
+    height = inverter ? -height : height;
+    double comprimento = ortoSizeX * 0.1;
+    glBegin(GL_LINE_STRIP);
+        glVertex2d(0, startY);
+        glVertex2d(comprimento, startY);
+        glVertex2d(comprimento * 2, startY + height);
+        glVertex2d(comprimento * 3, startY);
+        glVertex2d(comprimento * 4, startY);
+        glVertex2d(comprimento * 5, startY + height);
+        glVertex2d(comprimento * 6, startY);
+        glVertex2d(comprimento * 7, startY);
+        glVertex2d(comprimento * 8, startY + height);
+        glVertex2d(comprimento * 9, startY);
+        glVertex2d(comprimento * 10, startY);
+    glEnd();
+}
+
+void drawBackground(double height){
+    double startY = ortoSizeY;
+
+    glColor3d(0.7, 0.7, 0.7);
+    glLineWidth(1);
+    for(int i = 0; i < 11; i++){
+        drawTriangles(1, startY, height);
+        drawTriangles(0, startY, height);
+        startY -= ortoSizeY * 0.1;
+    }
+
+}
+
 void drawMenu() {
-    glutMouseFunc(mouseClickHandler);
-    ProgramPage *current;
 
-    switch(estado_atual.currentPage){
-        case homePage:
-            current = &paginaHome;
-            break;
-    }
+    double width = 350;
+    double height = 350;
 
-    for (int i = 0; i < MAX_BUTTONS; i++){
-        drawButton(&current->pageButtons[i]);
-    }
-}**/
+    drawBackground(30);
+
+    glColor3d(0.25, 0.25, 0.25);
+    glLineWidth(8);
+    glBegin(GL_LINES);
+        glVertex2d(ortoSizeX/2 - width/2 + 10, ortoSizeY/2 - height/2);
+        glVertex2d(ortoSizeX/2 + width/2 + 3, ortoSizeY/2 - height/2);
+
+        glVertex2d(ortoSizeX/2 + width/2, ortoSizeY/2+height/2 - 10);
+        glVertex2d(ortoSizeX/2 + width/2, ortoSizeY/2-height/2 - 3);
+    glEnd();
+
+    glColor3d(0.1, 0.75, 0.75);
+    glRectf(ortoSizeX/2 - width/2, ortoSizeY/2+height/2, ortoSizeX/2 + width/2, ortoSizeY/2 - height/2);
+
+}
 
 void showPolygonProgress(){
     if (tempListPontosPoli == NULL)
@@ -533,7 +567,6 @@ void showPolygonProgress(){
 
     ListaPontos aux = *tempListPontosPoli;
     glColor3d(0, 0, 0);
-    printf(" xesquedeleeee = %d\n", tempListQtdPontos);
     if (tempListQtdPontos <= 1){
         lastPolyPontoCatched = &aux->ponto;
     }
@@ -579,14 +612,11 @@ void display(){
             glEnd();
         }
         break;
-    case notFoundPage:
-        showPage(&errorPage);
-        break;
     default:
         break;
     }
 
-  glFlush(); //desenha os comandos não executados
+  glFlush();
 }
 
 void desenhasFormasGeometricas(){
@@ -599,23 +629,20 @@ void init(){
     estado_atual.currentPage = homePage;
     glutSetCursor(GLUT_CURSOR_CROSSHAIR);
 
-    int msgLength = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*) "404 ERROR: PAGE NOT FOUND");
-    criar_pagina(&errorPage, notFoundPage, NULL);
-    criar_pagina(&paginaHome, homePage, NULL);
+    criar_pagina(&paginaHome, homePage, &drawMenu);
     criar_pagina(&drawingPage, drawPage, &desenhasFormasGeometricas);
-    add_text(&errorPage, "404 ERROR: PAGE NOT FOUND", GLUT_BITMAP_TIMES_ROMAN_24, (ortoSizeX - msgLength )/ 2, ortoSizeY/2);
 
-    glClearColor(1, 1, 1, 1.0); //define a cor de fundo
+    glClearColor(1, 1, 1, 1.0);
 
-    glMatrixMode(GL_PROJECTION); //carrega a matriz de projeção
-    glOrtho(0, ortoSizeX, 0, ortoSizeY, -1.0, 1.0); //define a projeção ortogonal 2D
+    glMatrixMode(GL_PROJECTION);
+    glOrtho(0, ortoSizeX, 0, ortoSizeY, -1.0, 1.0);
 
     double width = 150, height = 30;
 
-    criarBotao(&paginaHome, 404, 50, ortoSizeY-130, width, height, "PAGINA INEXISTENTE", rgb);
-    criarBotao(&paginaHome, cliqueNovoArquivo, 50, ortoSizeY-130-40, width, height, "NOVO ARQUIVO", rgb);
-    criarBotao(&paginaHome, cliqueCarregarArquivo, 50, ortoSizeY-130-80, width, height, "CARREGAR ARQUIVO", rgb);
-
+    criarBotao(&paginaHome, cliqueNovoArquivo, ortoSizeX/2 - (width/2), ortoSizeY/2+(height/2)+5-20, width, height, "NOVO ARQUIVO", rgb);
+    criarBotao(&paginaHome, cliqueCarregarArquivo, ortoSizeX/2 - (width/2), ortoSizeY/2-(height/2)-5-20, width, height, "CARREGAR ARQUIVO", rgb);
+    double textWidth = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (unsigned char*) "=- Quase Paint -=");
+    add_text(&paginaHome, "=- Quase Paint -=", GLUT_BITMAP_HELVETICA_18, ortoSizeX/2 - textWidth/2, ortoSizeY/2 + 110);
     width = 80;
 
     criarBotao(&drawingPage, cliqueCriarPontos,ortoSizeX-10-width, ortoSizeY-((height+10) * (drawingPage.qtd_buttons + 1)), width, height, "PONTO", rgb);

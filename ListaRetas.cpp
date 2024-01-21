@@ -151,7 +151,7 @@ int desenhaRetas(ListaRetas *ldse){
     }else{
         ElementoReta *aux = *ldse;
         double rgb4selected[] = {1, 0.647, 0};
-        glLineWidth(5.0);
+        glLineWidth(7.0);
         glBegin(GL_LINES);
 
         while(aux != NULL){
