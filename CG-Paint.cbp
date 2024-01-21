@@ -51,8 +51,6 @@
 		<Unit filename="estruturas.cpp" />
 		<Unit filename="estruturas.hpp" />
 		<Unit filename="main.cpp" />
-		<Unit filename="myUtils.cpp" />
-		<Unit filename="myUtils.hpp" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

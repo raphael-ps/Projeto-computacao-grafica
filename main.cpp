@@ -639,8 +639,8 @@ void init(){
 
     double width = 150, height = 30;
 
-    criarBotao(&paginaHome, cliqueNovoArquivo, ortoSizeX/2 - (width/2), ortoSizeY/2+(height/2)+5-20, width, height, "NOVO ARQUIVO", rgb);
-    criarBotao(&paginaHome, cliqueCarregarArquivo, ortoSizeX/2 - (width/2), ortoSizeY/2-(height/2)-5-20, width, height, "CARREGAR ARQUIVO", rgb);
+    criarBotao(&paginaHome, cliqueNovoArquivo, ortoSizeX/2 - (width/2), ortoSizeY/2+(height/2)+10-20, width, height, "NOVO ARQUIVO", rgb);
+    criarBotao(&paginaHome, cliqueCarregarArquivo, ortoSizeX/2 - (width/2), ortoSizeY/2-(height/2)-10-20, width, height, "CARREGAR ARQUIVO", rgb);
     double textWidth = glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (unsigned char*) "=- Quase Paint -=");
     add_text(&paginaHome, "=- Quase Paint -=", GLUT_BITMAP_HELVETICA_18, ortoSizeX/2 - textWidth/2, ortoSizeY/2 + 110);
     width = 80;

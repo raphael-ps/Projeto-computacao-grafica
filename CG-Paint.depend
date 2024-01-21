@@ -973,7 +973,7 @@
 	"ListaRetas.hpp"
 	"estruturas.hpp"
 
-1705803989 source:c:\users\softex\documents\github\projeto-computacao-grafica\main.cpp
+1705804366 source:c:\users\softex\documents\github\projeto-computacao-grafica\main.cpp
 	<GLUT/glut.h>
 	<GL/glut.h>
 	<stdio.h>
